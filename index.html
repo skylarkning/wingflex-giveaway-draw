@@ -243,18 +243,25 @@ async function drawOne(){
   $('draw').disabled=pool.length<1 || winners.length>=maxWinners;
 }
 function undo(){ const w=winners.pop(); if(!w) return; pool.push(w); renderPool(); updateStats(Number($('sRequested').textContent)); updateAudit('Last winner undone.'); $('undo').disabled=winners.length<1; $('finishDrawing').disabled=winners.length<1; $('exportWinners').disabled=winners.length<1; showWinner('Undo complete', w.name+' returned to pool', 'Audit updated'); $('draw').disabled=pool.length<1 || winners.length>=currentMaxWinners(); }
-function showWinner(name,email,badge){ $('winnerBox').innerHTML=`<div class="winnerInner"><div class="badge">${escapeHtml(badge)}</div><div class="name">${escapeHtml(name)}</div><div class="email">${escapeHtml(email)}</div></div>`; }
-function maskEmail(email){ const s=String(email||'').trim(); const parts=s.split('@'); if(parts.length!==2) return ''; const local=parts[0], domain=parts[1]; const shown=local.length<=2 ? local[0]+'*' : local.slice(0,2)+'***'; return shown+'@'+domain; }
-
-function finalWinnersMarkup(){
-  return winners.map((w,i)=>`
-    <div class="finalWinnerRow">
-      <div class="finalWinnerRank">${escapeHtml(w.rank || (ordinal(i+1)+' Prize Winner'))}</div>
-      <div>
-        <div class="finalWinnerName">${escapeHtml(w.name || 'Winner')}</div>
-        <div class="finalWinnerEmail">${escapeHtml(maskEmail(w.email))}</div>
-      </div>
-    </div>`).join('');
+function showWinner(name,email,badge){
+  const displayEmail = String(email||'').includes('@') ? maskEmail(email) : email;
+  $('winnerBox').innerHTML=`<div class="winnerInner"><div class="badge">${escapeHtml(badge)}</div><div class="name">${escapeHtml(name)}</div><div class="email">${escapeHtml(displayEmail)}</div></div>`;
+}
+function maskEmail(email){
+  const s=String(email||'').trim();
+  const parts=s.split('@');
+  if(parts.length!==2) return '';
+  const local=parts[0] || '';
+  const domain=parts[1] || '';
+  const localShown = local.length <= 1 ? '*' : local.slice(0, Math.min(2, local.length)) + '***';
+  const dot = domain.lastIndexOf('.');
+  if(dot > 1){
+    const domainName = domain.slice(0, dot);
+    const tld = domain.slice(dot);
+    const domainShown = domainName.length <= 1 ? '*' : domainName.slice(0, Math.min(2, domainName.length)) + '***';
+    return localShown + '@' + domainShown + tld;
+  }
+  return localShown + '@***';
 }
 function showFinalWinners(){
   if(!winners.length) return;
