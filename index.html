@@ -263,6 +263,16 @@ function maskEmail(email){
   }
   return localShown + '@***';
 }
+function finalWinnersMarkup(){
+  return winners.map((w,i)=>`
+    <div class="finalWinnerRow">
+      <div class="finalWinnerRank">${escapeHtml(w.rank || (ordinal(i+1)+' Prize Winner'))}</div>
+      <div>
+        <div class="finalWinnerName">${escapeHtml(w.name || 'Winner')}</div>
+        <div class="finalWinnerEmail">${escapeHtml(maskEmail(w.email))}</div>
+      </div>
+    </div>`).join('');
+}
 function showFinalWinners(){
   if(!winners.length) return;
   const brandImg=document.querySelector('.brand img');
@@ -294,7 +304,7 @@ function confetti(){ const box=$('confetti'); const colors=['#34aee2','#20308f',
 $('file').addEventListener('change', e=>{ const f=e.target.files[0]; if(!f) return; const reader=new FileReader(); reader.onload=()=>{try{loadCsv(reader.result, f.name)}catch(err){alert(err.message)}}; reader.readAsText(f); });
 for(const ev of ['dragenter','dragover']) $('drop').addEventListener(ev,e=>{e.preventDefault(); $('drop').classList.add('drag')}); for(const ev of ['dragleave','drop']) $('drop').addEventListener(ev,e=>{$('drop').classList.remove('drag')}); $('drop').addEventListener('drop',e=>{e.preventDefault(); const f=e.dataTransfer.files[0]; if(f){const reader=new FileReader(); reader.onload=()=>{try{loadCsv(reader.result, f.name)}catch(err){alert(err.message)}}; reader.readAsText(f);}});
 restoreWinnerCard(); $('winnerOverlay').addEventListener('click', e=>{ if(e.target.id==='winnerOverlay') $('winnerOverlay').classList.add('hidden'); });
-$('prepare').addEventListener('click', preparePool); $('draw').addEventListener('click', drawOne); $('finishDrawing').addEventListener('click', showFinalWinners); $('undo').addEventListener('click', undo); $('exportWinners').addEventListener('click', exportWinners); $('cohort').addEventListener('change', ()=>{if(rows.length) preparePool()}); $('strictDup').addEventListener('change', ()=>{if(rows.length) preparePool()}); $('weightedMode').addEventListener('change', ()=>{if(rows.length) preparePool()}); $('winnerCount').addEventListener('change', ()=>{ $('draw').disabled=pool.length<1 || winners.length>=currentMaxWinners(); $('finishDrawing').disabled=winners.length<1; });
+$('prepare').addEventListener('click', preparePool); $('draw').addEventListener('click', drawOne); const finishDrawingBtn=$('finishDrawing'); if(finishDrawingBtn) finishDrawingBtn.addEventListener('click', showFinalWinners); $('undo').addEventListener('click', undo); $('exportWinners').addEventListener('click', exportWinners); $('cohort').addEventListener('change', ()=>{if(rows.length) preparePool()}); $('strictDup').addEventListener('change', ()=>{if(rows.length) preparePool()}); $('weightedMode').addEventListener('change', ()=>{if(rows.length) preparePool()}); $('winnerCount').addEventListener('change', ()=>{ $('draw').disabled=pool.length<1 || winners.length>=currentMaxWinners(); $('finishDrawing').disabled=winners.length<1; });
 </script>
 </body>
 </html>
